@@ -1,4 +1,4 @@
-package main
+package walker
 
 import (
 	"io/fs"
