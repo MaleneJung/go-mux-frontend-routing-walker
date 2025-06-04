@@ -17,6 +17,8 @@ func MuxFrontendWalker(serveMux *http.ServeMux, baseRoute string, baseDir string
 			return err
 		}
 
+		filePath = strings.ReplaceAll(filePath, "\\", "/")
+
 		fileRoute, _ := strings.CutPrefix(filePath, baseDir)
 
 		fileHandler := func(w http.ResponseWriter, r *http.Request) {
@@ -42,12 +44,12 @@ func MuxFrontendWalker(serveMux *http.ServeMux, baseRoute string, baseDir string
 			if logging {
 				log.Println("Registered Route \"" + baseRoute + "/" + indexRoute + "/" + "\" for \"" + filePath + "\"")
 			}
-			serveMux.HandleFunc(baseRoute+"/"+indexRoute+"/", fileHandler)
+			serveMux.HandleFunc(baseRoute+indexRoute+"/", fileHandler)
 		}
 		if logging {
 			log.Println("Registered Route \"" + baseRoute + "/" + fileRoute + "\" for \"" + filePath + "\"")
 		}
-		serveMux.HandleFunc(baseRoute+"/"+fileRoute, fileHandler)
+		serveMux.HandleFunc(baseRoute+fileRoute, fileHandler)
 
 		return nil
 
