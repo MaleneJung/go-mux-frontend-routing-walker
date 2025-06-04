@@ -1,4 +1,4 @@
-package walker
+package frontend
 
 import (
 	"io/fs"
