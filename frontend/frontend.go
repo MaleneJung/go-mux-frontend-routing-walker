@@ -17,6 +17,10 @@ func MuxFrontendWalker(serveMux *http.ServeMux, baseRoute string, baseDir string
 			return err
 		}
 
+		if info.IsDir() {
+			return nil
+		}
+
 		filePath = strings.ReplaceAll(filePath, "\\", "/")
 
 		fileRoute, _ := strings.CutPrefix(filePath, baseDir)
@@ -40,14 +44,14 @@ func MuxFrontendWalker(serveMux *http.ServeMux, baseRoute string, baseDir string
 
 		}
 
-		if indexRoute, isIndexMarkup := strings.CutSuffix(fileRoute, "/index.html"); isIndexMarkup {
+		if indexRoute, isIndexMarkup := strings.CutSuffix(baseRoute+fileRoute, "/index.html"); isIndexMarkup {
 			if logging {
-				log.Println("Registered Route \"" + baseRoute + "/" + indexRoute + "/" + "\" for \"" + filePath + "\"")
+				log.Println("Registered Route \"" + indexRoute + "/" + "\" for \"" + filePath + "\"")
 			}
-			serveMux.HandleFunc(baseRoute+indexRoute+"/", fileHandler)
+			serveMux.HandleFunc(indexRoute+"/", fileHandler)
 		}
 		if logging {
-			log.Println("Registered Route \"" + baseRoute + "/" + fileRoute + "\" for \"" + filePath + "\"")
+			log.Println("Registered Route \"" + baseRoute + fileRoute + "\" for \"" + filePath + "\"")
 		}
 		serveMux.HandleFunc(baseRoute+fileRoute, fileHandler)
 
