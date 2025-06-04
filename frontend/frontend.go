@@ -2,6 +2,7 @@ package frontend
 
 import (
 	"io/fs"
+	"log"
 	"mime"
 	"net/http"
 	"os"
@@ -9,7 +10,7 @@ import (
 	"strings"
 )
 
-func MuxFrontendWalker(serveMux *http.ServeMux, baseRoute string, baseDir string) error {
+func MuxFrontendWalker(serveMux *http.ServeMux, baseRoute string, baseDir string, logging bool) error {
 	return filepath.Walk(baseDir, func(filePath string, info fs.FileInfo, err error) error {
 
 		if err != nil {
@@ -23,6 +24,9 @@ func MuxFrontendWalker(serveMux *http.ServeMux, baseRoute string, baseDir string
 			fileBuffer, err := os.ReadFile(filePath)
 			if err != nil {
 				w.WriteHeader(404)
+				if logging {
+					log.Fatal(err)
+				}
 				return
 			}
 
@@ -35,7 +39,13 @@ func MuxFrontendWalker(serveMux *http.ServeMux, baseRoute string, baseDir string
 		}
 
 		if indexRoute, isIndexMarkup := strings.CutSuffix(fileRoute, "/index.html"); isIndexMarkup {
+			if logging {
+				log.Println("Registered Route \"" + baseRoute + "/" + indexRoute + "/" + "\" for \"" + filePath + "\"")
+			}
 			serveMux.HandleFunc(baseRoute+"/"+indexRoute+"/", fileHandler)
+		}
+		if logging {
+			log.Println("Registered Route \"" + baseRoute + "/" + fileRoute + "\" for \"" + filePath + "\"")
 		}
 		serveMux.HandleFunc(baseRoute+"/"+fileRoute, fileHandler)
 
